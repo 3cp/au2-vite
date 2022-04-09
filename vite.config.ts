@@ -1,7 +1,5 @@
-import { defineConfig, normalizePath } from 'vite';
+import { defineConfig } from 'vite';
 import { preprocess } from '@aurelia/plugin-conventions';
-// import typescript from 'rollup-plugin-typescript2';
-import path from 'path';
 
 export default defineConfig({
 	plugins: [ au2() ]
@@ -15,10 +13,20 @@ function au2() {
 			if (id.includes('node_modules')) return;
 			if (id.endsWith('.html') || id.endsWith('.ts')) {
 				const result = preprocess({
-					path: normalizePath(path.relative(process.cwd(), id)),
+					path: id,
 					contents: src
 				}, {})
-				return result;
+				const part = {
+					code: result.code,
+					// https://rollupjs.org/guide/en/#source-code-transformations
+					// Rollup doc says rollup only needs mappings,
+					// but this does not work inside Vite.
+					// Might be Vite did not expect there is incoming sourcemap
+					// before Vite's core plugins.
+					map: { mappings: result.map.mappings }
+				};
+				// console.log(part);
+				return part;
 			}
 		}
 	}
