@@ -3,7 +3,7 @@ import { preprocess } from '@aurelia/plugin-conventions';
 import { createFilter } from '@rollup/pluginutils';
 
 export default defineConfig({
-	plugins: [ au2({ include: 'src/**/*.{ts,html}' }) ]
+	plugins: [ au2({ include: 'src/**/*.ts', pre: true }), au2({ include: 'src/**/*.html' }) ]
 });
 
 function au2(options = {}) {
@@ -11,13 +11,15 @@ function au2(options = {}) {
 
 	return {
 		name: 'au2',
-		enforce: 'pre',
+		enforce: options.pre ? 'pre' : 'post',
 		transform(code: string, id: string) {
 			if (!filter(id)) return;
 			const result = preprocess({
 				path: id,
 				contents: code
-			}, {hmr: false})
+			// The enableConventions: true can be removed after this bug fix:
+			// https://github.com/aurelia/aurelia/pull/1493
+			}, {enableConventions: true, hmr: false})
 			return result;
 			// const part = {
 			// 	code: result.code,
