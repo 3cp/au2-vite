@@ -17,7 +17,7 @@ function au2(options = {}) {
 			const result = preprocess({
 				path: id,
 				contents: code
-			}, {})
+			}, {hmr: false})
 			return result;
 			// const part = {
 			// 	code: result.code,
